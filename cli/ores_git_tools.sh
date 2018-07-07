@@ -8,7 +8,7 @@ read_link="$(readlink "$0")";
 exec_dir="$(dirname $(dirname "$read_link"))";
 my_path="$dir_name/$exec_dir";
 basic_path="$(cd $(dirname ${my_path}) && pwd)/$(basename ${my_path})"
-js="$basic_path/dist/commands"
+commands="$basic_path/dist/commands"
 
 
 ### there is an extradinary amount of magic required to get a bash script
@@ -20,8 +20,19 @@ js="$basic_path/dist/commands"
 
 ### run this mofo
 
+
+if ! type -f ores; then
+  npm i -g -s '@oresoftware/ores' || {
+    echo &>2 "Could not install ores command line tool.";
+    exit 1;
+  }
+fi
+
 first_arg="$1";
 shift 1;
+
+
+
 
 if [ "$first_arg" == "copy-tools" ]; then
 

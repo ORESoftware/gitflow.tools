@@ -5,21 +5,24 @@ import async = require('async');
 import * as stdio from 'json-stdio';
 import * as path from "path";
 import * as cp from 'child_process';
-const source = process.argv[2];
-const dest = process.argv[3];
 import residence = require('residence');
+import log from '../../logger';
 const cwd = process.cwd();
 const projectRoot = residence.findProjectRoot(cwd);
 
-if(!projectRoot){
+if (!projectRoot) {
   throw new Error('Could not find project root given current working directory: ' + cwd);
 }
+
+const dest = path.resolve(projectRoot + '/scripts/git');
+const cloneableRepo = 'git@github.com:ORESoftware/gitflow.tools.git';
+
 
 export type EVCb = (err: any, val?: any) => void;
 
 async.autoInject({
 
-  mkdir(cb: EVCb){
+  mkdir(cb: EVCb) {
 
     const k = cp.spawn('bash');
     k.stdin.end(`mkdir -p ${dest}`);
@@ -27,24 +30,47 @@ async.autoInject({
 
   },
 
-  copy(mkdir: string, cb: EVCb){
+  clone(cb: EVCb){
 
+    const k = cp.spawn('bash');
+    k.stdin.end(`ores clone "${cloneableRepo}"`);
+
+    let result = {
+      value: null as string
+    };
+
+    k.stdout.pipe(stdio.createParser()).once('data', (d: any) => {
+      if(d && d.value){
+        result.value = String(d.value);
+      }
+    });
+
+    k.once('exit', code => {
+      cb(code, result.value);
+    });
+
+  },
+
+  copy(mkdir: string,clone: string, cb: EVCb) {
+
+    if(typeof clone !== 'string'){
+      return process.nextTick(cb, new Error('Could not find cloneable path.'));
+    }
+
+    const source = path.resolve(clone + '/assets/tools');
     const k = cp.spawn('bash');
     k.stdin.end(`rsync -r "${source}" "${dest}"`);
     k.once('exit', cb);
 
   }
 
-
-
 }, (err, results) => {
 
-  if(err){
+  if (err) {
     throw err;
   }
 
-
-
+  console.log('All done.');
 
 });
 
