@@ -21,7 +21,8 @@ commands="$basic_path/dist/commands"
 ### run this mofo
 
 
-if ! type -f ores; then
+if ! type -f ores &> /dev/null; then
+  echo "Installing '@oresoftware/ores'..."
   npm i -g -s '@oresoftware/ores' || {
     echo &>2 "Could not install ores command line tool.";
     exit 1;
