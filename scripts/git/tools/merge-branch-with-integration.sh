@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e; # exit immediately if any command fails
+set -e; # exit if any command fails
 
 current_branch="$(git rev-parse --abbrev-ref HEAD)"
 
