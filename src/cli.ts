@@ -3,5 +3,8 @@
 
 import shortid = require("shortid");
 import async = require('async');
+import * as stdio from 'json-stdio';
+
+
 
 

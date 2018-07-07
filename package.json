@@ -4,7 +4,7 @@
   "description": "Semver-oriented TypeScript library skeleton.",
   "main": "dist/index.js",
   "bin": {
-    "example": "cli/example.sh"
+    "ores_git_tools": "cli/ores_git_tools.sh"
   },
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
@@ -30,6 +30,8 @@
   "homepage": "https://github.com/ORESoftware/typescript-library-skeleton#readme",
   "dependencies": {
     "async": "^2.6.1",
+    "json-stdio": "0.0.1017",
+    "residence": "0.0.210",
     "shortid": "^2.2.8"
   },
   "devDependencies": {

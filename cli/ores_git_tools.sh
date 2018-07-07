@@ -8,7 +8,7 @@ read_link="$(readlink "$0")";
 exec_dir="$(dirname $(dirname "$read_link"))";
 my_path="$dir_name/$exec_dir";
 basic_path="$(cd $(dirname ${my_path}) && pwd)/$(basename ${my_path})"
-js="$basic_path/dist/cli.js"
+js="$basic_path/dist/commands"
 
 
 ### there is an extradinary amount of magic required to get a bash script
@@ -19,4 +19,21 @@ js="$basic_path/dist/cli.js"
 ### or set env variables as needed
 
 ### run this mofo
-node "$js" "$@"
+
+first_arg="$1";
+shift 1;
+
+if [ "$first_arg" == "copy-tools" ]; then
+
+    node "$commands/copy-tools" "$@"
+
+else
+
+    echo "No commands matched."; false;
+
+fi
+
+
+exit_code="$?"
+echo "Exiting with code => $exit_code";
+exit "$exit_code";
