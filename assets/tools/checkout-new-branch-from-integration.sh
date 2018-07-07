@@ -2,22 +2,36 @@
 
 set -e;
 
+
+branch_type="${1:-feature}";
+arr=( 'feature' 'bugfix' 'release' );
+
+contains() {
+
+    local seeking="$1"; shift 1; local arr=( "$@" );
+
+    for v in "${arr[@]}"; do
+        echo "v is $v and seeking is $seeking";
+        if [ "$v" == "$seeking" ]; then
+            return 0;
+        fi
+    done
+
+   return 1;
+}
+
+if ! contains "$branch_type" "${arr[@]}"; then
+    echo "Branch type needs to be either 'feature', 'bugfix' or 'release'."
+    echo "The branch type you passed was: $branch_type"
+    exit 1;
+fi
+
+
 git fetch origin
 git checkout dev
 git merge -Xignore-space-change origin/dev
 
 time_millis=`node -e 'console.log(Date.now())'`;
-
-branch_type="${1:-feature}";
-
-
-arr=('feature', 'bugfix', 'release');
-
-
-if [[ " ${arr[*]} " != *"$branch_type"* ]]; then
-    echo "Branch type needs to be either 'feature', 'bugfix' or 'release'."
-    exit 1;
-fi
 
 echo "You are checking out a new $branch_type branch from the dev branch"
 new_branch="${USER}/${branch_type}/${time_millis}"
