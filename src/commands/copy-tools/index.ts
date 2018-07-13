@@ -17,12 +17,11 @@ if (!projectRoot) {
 const dest = path.resolve(projectRoot + '/scripts/git');
 const cloneableRepo = 'git@github.com:ORESoftware/gitflow.tools.git';
 
-
-export type EVCb = (err: any, val?: any) => void;
+export type EVCb<T> = (err: any, val?: T) => void;
 
 async.autoInject({
 
-  mkdir(cb: EVCb) {
+  mkdir(cb: EVCb<any>) {
 
     const k = cp.spawn('bash');
     k.stdin.end(`mkdir -p ${dest}`);
@@ -30,7 +29,7 @@ async.autoInject({
 
   },
 
-  clone(cb: EVCb){
+  clone(cb: EVCb<any>) {
 
     const k = cp.spawn('bash');
     k.stdin.end(`ores clone "${cloneableRepo}"`);
@@ -40,7 +39,7 @@ async.autoInject({
     };
 
     k.stdout.pipe(stdio.createParser()).once('data', (d: any) => {
-      if(d && d.value){
+      if (d && d.value) {
         result.value = String(d.value);
       }
     });
@@ -51,9 +50,9 @@ async.autoInject({
 
   },
 
-  copy(mkdir: string,clone: string, cb: EVCb) {
+  copy(mkdir: string, clone: string, cb: EVCb<any>) {
 
-    if(typeof clone !== 'string'){
+    if (typeof clone !== 'string') {
       return process.nextTick(cb, new Error('Could not find cloneable path.'));
     }
 

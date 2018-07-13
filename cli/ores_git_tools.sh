@@ -33,8 +33,6 @@ first_arg="$1";
 shift 1;
 
 
-
-
 if [ "$first_arg" == "copy-tools" ]; then
 
     node "$commands/copy-tools" "$@"
