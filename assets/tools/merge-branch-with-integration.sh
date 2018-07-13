@@ -20,3 +20,5 @@ git commit --allow-empty -am "merge_at:${time_seconds}"
 git merge -Xignore-space-change "origin/dev" # use --no-ff to force a new commit
 git push origin HEAD
 
+git checkout dev; # so we don't keep working on the old feature branch
+git merge -Xignore-space-change origin/dev;
