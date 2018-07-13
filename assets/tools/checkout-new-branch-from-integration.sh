@@ -2,21 +2,20 @@
 
 set -e;
 
-
 branch_type="${1:-feature}";
 arr=( 'feature' 'bugfix' 'release' );
 
 contains() {
 
-    local seeking="$1"; shift 1; local arr=( "$@" );
+    local seeking="$1"
+    shift 1;
+    local arr=( "$@" )
 
     for v in "${arr[@]}"; do
-        echo "v is $v and seeking is $seeking";
         if [ "$v" == "$seeking" ]; then
             return 0;
         fi
     done
-
    return 1;
 }
 
