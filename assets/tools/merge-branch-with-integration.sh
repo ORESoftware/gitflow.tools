@@ -15,7 +15,7 @@ git add .
 git add -A
 git commit --allow-empty -am "merge_at:${time_seconds}"
 
-git fetch origin
+git fetch origin dev;
 git merge -Xignore-space-change "origin/dev" # use --no-ff to force a new commit
-git push origin HEAD
+git push origin HEAD;
 

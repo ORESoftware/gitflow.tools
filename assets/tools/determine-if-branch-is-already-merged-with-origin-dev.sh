@@ -8,12 +8,13 @@ no_color='\033[0m'
 
 branch="${1:-HEAD}"
 
-branch_name=`git rev-parse --abbrev-ref $branch`;
-git fetch origin;
+branch_name=`git rev-parse --abbrev-ref "$branch"`;
+
+git fetch origin dev master;
 
 
-merge_base="$(git merge-base origin/dev $branch)"
-merge_source_current_commit="$(git rev-parse $branch)"
+merge_base=`git merge-base origin/dev "$branch"`
+merge_source_current_commit=`git rev-parse "$branch"`
 
 
 if [ "$merge_base" != "$merge_source_current_commit" ]; then
