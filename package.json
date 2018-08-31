@@ -6,9 +6,12 @@
   "bin": {
     "ores_git_tools": "cli/ores-git-tools.sh",
     "ores_git_merge_with_integration": "cli/ores-git-merge-with-integration.sh",
-    "ores_list_git_branches_to_delete":"cli/ores-list-git-branches-to-delete.sh",
-    "ores_checkout_new_branch_from_integration":"cli/ores-checkout-new-branch-from-integration.sh",
-    "ores_git_squash_to_integration":"cli/ores-git-squash-to-integration.sh"
+    "ores_list_git_branches_to_delete": "cli/ores-list-git-branches-to-delete.sh",
+    "ores_checkout_new_branch_from_integration": "cli/ores-checkout-new-branch-from-integration.sh",
+    "ores_git_squash_to_integration": "cli/ores-git-squash-to-integration.sh",
+    "ores_git_push": "cli/ores-git-push.sh",
+    "ores_delete_old_git_branches": "cli/ores-delete-old-git-branches.sh",
+    "ores_determine_if_git_branch_is_merged_with_integration": "cli/ores-determine-if-git-branch-is-merged-with-integration.sh"
   },
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
