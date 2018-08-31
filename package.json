@@ -4,7 +4,9 @@
   "description": "Semver-oriented TypeScript library skeleton.",
   "main": "dist/index.js",
   "bin": {
-    "ores_git_tools": "cli/ores_git_tools.sh"
+    "ores_git_tools": "cli/ores-git-tools.sh",
+    "ores_git_merge_with_integration": "cli/ores-git-merge-with-integration.sh",
+    "ores_list_git_branches_to_delete":"cli/ores-list-git-branches-to-delete.sh"
   },
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
