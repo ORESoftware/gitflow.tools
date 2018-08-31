@@ -4,18 +4,24 @@
 set -e; # exit immediately if any command fails
 
 if ! git diff --quiet; then
-   echo "Working tree/index not clean, use git status to investigate";
+   echo "Working tree/index not clean, use 'git status' to investigate";
    exit 1;
 fi
 
-current_branch="$(git rev-parse --abbrev-ref HEAD)"
+export current_branch="$(git rev-parse --abbrev-ref HEAD)"
 
-if [ "$current_branch" != *feature* ] ; then
+if [ "$current_branch" != */feature/* ] ; then
   echo "Current branch does not seem to be a feature branch by name, please check, and use --force to override.";
   exit 1;
 fi
 
 git fetch origin;
 
+git checkout -b "$current_branch/squashed"
+git reset --soft "remotes/origin/dev";
 
+git add .
+git add -A
+git commit -am "ores/gitflow auto-commit (squashed)"
+git push
 

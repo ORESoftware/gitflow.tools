@@ -3,31 +3,16 @@
 ### we use this bash file instead of a dist/.js file, because of this problem:
 ### https://stackoverflow.com/questions/50616253/how-to-resolve-chicken-egg-situation-with-tsc-and-npm-install
 
-dir_name="$(dirname "$0")"
-read_link="$(readlink "$0")";
-exec_dir="$(dirname $(dirname "$read_link"))";
-my_path="$dir_name/$exec_dir";
-basic_path="$(cd $(dirname ${my_path}) && pwd)/$(basename ${my_path})"
-commands="$basic_path/dist/commands"
 
-
-### there is an extradinary amount of magic required to get a bash script
-### to properly reference an adjacent .js file
-### if the above can be simplified, please lmk, but the above is currently very necessary.
-
-### one value add here of using a bash script, is that we can easily install any missing CLI dependencies
-### or set env variables as needed
-
-### run this mofo
-
-
-if ! type -f ores &> /dev/null; then
-  echo "Installing '@oresoftware/ores'..."
-  npm i -g -s '@oresoftware/ores' || {
-    echo &>2 "Could not install ores command line tool.";
-    exit 1;
-  }
+if ! type -f ores_get_project_root &> /dev/null; then
+   npm i -s -g '@oresoftware/ores' || {
+      echo "Could not install '@oresoftware/ores'";
+      exit 1;
+   }
 fi
+
+project_root="$(ores_get_project_root "$0")";
+commands="$project_root/dist/commands"
 
 first_arg="$1";
 shift 1;
