@@ -39,6 +39,7 @@
     "async": "^2.6.1",
     "chalk": "^2.4.1",
     "json-stdio": "0.0.1017",
+    "prepend-transform": "0.0.1017",
     "residence": "0.0.210",
     "shortid": "^2.2.8"
   },

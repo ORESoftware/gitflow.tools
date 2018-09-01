@@ -9,6 +9,7 @@ import residence = require('residence');
 import chalk from 'chalk';
 import log from '../../logger';
 import {EVCb, flattenDeep, getUniqueList} from '../../utils';
+import pt from 'prepend-transform';
 
 const cwd = process.cwd();
 const projectRoot = residence.findProjectRoot(cwd);
@@ -33,8 +34,6 @@ interface MergedBranchesResult {
 }
 
 interface CommitHashResult {
-  // map: Map<string, string>,
-  // set: Set<string>
   branches: Array<string>,
   stdout: string
 }
@@ -63,7 +62,7 @@ async.autoInject({
         result.stdout += String(d);
       });
       
-      k.stderr.pipe(process.stderr);
+      k.stderr.pipe(pt(chalk.yellow.bold(`ores/git fetch origin: `))).pipe(process.stderr);
       
       k.once('exit', code => {
         
@@ -92,14 +91,14 @@ async.autoInject({
         stdout: ''
       };
       
-      const cmd = `git branch --merged "remotes/origin/dev" | tr -d ' *' `;
+      const cmd = `git branch --merged "remotes/origin/dev" | tr -d ' *'`;
       k.stdin.end(cmd);
       
       k.stdout.on('data', d => {
         result.stdout += String(d);
       });
       
-      k.stderr.pipe(process.stderr);
+      k.stderr.pipe(pt(chalk.yellow.bold(`ores/find merged branches: `))).pipe(process.stderr);
       
       k.once('exit', code => {
         
@@ -131,7 +130,7 @@ async.autoInject({
       
       const specialBranches = branches.filter(v => v.endsWith(marker));
       
-      const result = <CommitHashResult>{
+      const result = <CommitHashResult> {
         // map: new Map(),  // map <branch,current hash>
         // set: new Set(),  // set < squashed branch hash >,
         branches: [],
@@ -141,11 +140,6 @@ async.autoInject({
       async.each(specialBranches, (v, cb) => {
         
         const k = cp.spawn('bash');
-        
-        // add second to last element to the Set
-        // result.set.add(String(v).split('@').slice(0,-1).reverse()[0]);
-        
-        // remove the last element, @squashed
         const b = String(v).split('@').slice(0, -1).join('');
         const cleanBranch = b.replace(/[^a-zA-Z0-9]/g, '');
         const divider = '***divider***';
@@ -166,7 +160,7 @@ async.autoInject({
           stdout += String(d || '').trim();
         });
         
-        k.stderr.pipe(process.stderr);
+        k.stderr.pipe(pt(chalk.yellow.bold(`ores/get commits by branch: `))).pipe(process.stderr);
         
         k.once('exit', code => {
           
@@ -175,7 +169,7 @@ async.autoInject({
             return cb(null);
           }
           
-          const getSplitDivider = () => {
+          const getSplitDivider = () : Array<string> => {
             return String(stdout).trim().split(divider).map(v => String(v || '').trim()).filter(Boolean);
           };
           
@@ -187,7 +181,6 @@ async.autoInject({
           }
           
           cb(code);
-          
         });
         
       }, err => {
@@ -203,7 +196,6 @@ async.autoInject({
     q.push(v => {
       
       const branches = findMergedBranches.value;
-      
       const additionalBranches = getCommitsByBranch.branches;
       const finalList = getUniqueList(flattenDeep([branches, additionalBranches]));
       
@@ -221,6 +213,8 @@ async.autoInject({
       }
       
       const k = cp.spawn('bash');
+      k.stderr.pipe(pt(`ores/run delete:`)).pipe(process.stderr);
+      
       const cmd = `git branch -D ${finalList.join(' ')}`;
       k.stdin.end(cmd);
       
@@ -251,7 +245,7 @@ async.autoInject({
     throw err;
   }
   
-  console.log('All done.');
+  log.info('All done.');
   
 });
 

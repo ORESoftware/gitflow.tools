@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+all_export="yep";
+
 if [[ ! "$SHELLOPTS" =~ "allexport" ]]; then
     all_export="nope";
     set -a;
