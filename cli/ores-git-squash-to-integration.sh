@@ -16,12 +16,12 @@ git add -A
 git commit --allow-empty -am "ores/gitflow auto-commit (PRE-squashed)"
 
 git fetch origin;
-#GIT_MERGE_AUTOEDIT=no git merge origin;
-#git merge --no-commit --no-edit origin;
+# GIT_MERGE_AUTOEDIT=no git merge origin;
+# git merge --no-commit --no-edit origin;
 git merge --no-edit origin;
 
 current_commit="$(git rev-parse HEAD)"
-new_branch="$current_branch@$current_commit@squashed";
+new_branch="$current_branch@squashed";
 
 git checkout -b "$new_branch";
 git reset --soft "remotes/origin/dev";
@@ -29,5 +29,9 @@ git reset --soft "remotes/origin/dev";
 git add .
 git add -A
 git commit --allow-empty -am "ores/gitflow auto-commit (squashed)"
+
+clean_branch=`echo "$current_branch" | tr -dc '[:alnum:]'`  # replace non-alpha-numerics with nothing
+git config --local "branch.$clean_branch.orescommit" "$current_commit"
+
 git push -u origin "$new_branch"
 

@@ -39,8 +39,9 @@ interface MergedBranchesResult {
 }
 
 interface CommitHashResult {
-  map: Map<string, string>,
-  set: Set<string>
+  // map: Map<string, string>,
+  // set: Set<string>
+  branches: Array<string>,
   stdout: string
 }
 
@@ -50,38 +51,38 @@ interface DeleteResult {
 
 async.autoInject({
   
-  fetchOrigin(cb: EVCb<any>){
+  fetchOrigin(cb: EVCb<any>) {
     
     q.push(cb => {
-  
+      
       const k = cp.spawn('bash');
-  
+      
       const result = <any>{
         value: [],
         stdout: ''
       };
-  
+      
       const cmd = `git fetch origin`;
       k.stdin.end(cmd);
-  
+      
       k.stdout.on('data', d => {
         result.stdout += String(d);
       });
-  
+      
       k.stderr.pipe(process.stderr);
-  
+      
       k.once('exit', code => {
-    
+        
         if (code > 0) {
           log.error('Could not run command:', chalk.magenta(cmd));
           return cb(code);
         }
-    
+        
         result.value = String(result.stdout).trim();
         cb(code, result);
-    
+        
       });
-    
+      
     }, cb);
     
   },
@@ -137,8 +138,9 @@ async.autoInject({
       const specialBranches = branches.filter(v => v.endsWith(marker));
       
       const result = <CommitHashResult>{
-        map: new Map(),  // map <branch,current hash>
-        set: new Set(),  // set < squashed branch hash >
+        // map: new Map(),  // map <branch,current hash>
+        // set: new Set(),  // set < squashed branch hash >,
+        branches : [],
         stdout: ''
       };
       
@@ -147,14 +149,23 @@ async.autoInject({
         const k = cp.spawn('bash');
         
         // add second to last element to the Set
-        result.set.add(String(v).split('@').slice(0,-1).reverse()[0]);
+        // result.set.add(String(v).split('@').slice(0,-1).reverse()[0]);
         
-        // remove the last two elements, @<hash>@squashed
-        const b = String(v).split('@').slice(0,-2).join('');
+        // remove the last element, @squashed
+        const b = String(v).split('@').slice(0, -1).join('');
+        const cleanBranch = b.replace(/[^a-zA-Z0-9]/g,'');
+        const divider = '***divider***';
         
-        const cmd = `git rev-parse "${b}"`;
+        const cmd = [
+          `commit="$(git config --local 'branch.${cleanBranch}.orescommit')__ensured"`,  // __ensured means we always get some stdout
+          `echo "$commit"`,
+          `echo "${divider}"`,
+          `git rev-parse "${b}"`
+        ]
+        .join(' && ');
+        
         k.stdin.end(cmd);
-  
+        
         let stdout = '';
         
         k.stdout.on('data', d => {
@@ -170,7 +181,16 @@ async.autoInject({
             return cb(null);
           }
           
-          result.map.set(b, String(stdout).trim());
+          const storedCommit = String(stdout).trim().split(divider).shift().replace('__ensured','').trim();
+          const currentCommit = String(stdout).trim().split(divider).pop();
+          
+          log.info({storedCommit,currentCommit});
+          
+          if(currentCommit === storedCommit){
+            result.branches.push(b);
+          }
+         
+          
           cb(code);
           
         });
@@ -189,29 +209,30 @@ async.autoInject({
       
       const branches = findMergedBranches.value;
       
-      log.info('map:', getCommitsByBranch.map);
-      log.info('set:', getCommitsByBranch.set);
+      // log.info('map:', getCommitsByBranch.map);
+      // log.info('set:', getCommitsByBranch.set);
       
       // we remove brances xxx, where xxx@squashed exists
-      const additionalBranches = Array.from(getCommitsByBranch.map.keys()).filter(v => {
-        // we return true if the tip of a the feature branch is in the name of a squashed branch
-        log.info('checking this branch:', v);
-        const currentCommitHash = getCommitsByBranch.map.get(v);
-        return getCommitsByBranch.set.has(currentCommitHash);
-      });
-      
+      // const additionalBranches = Array.from(getCommitsByBranch.map.keys()).filter(v => {
+      //   // we return true if the tip of a the feature branch is in the name of a squashed branch
+      //   log.info('checking this branch:', v);
+      //   const currentCommitHash = getCommitsByBranch.map.get(v);
+      //   return getCommitsByBranch.set.has(currentCommitHash);
+      // });
+  
+      const additionalBranches = getCommitsByBranch.branches;
       const finalList = getUniqueList(flattenDeep([branches, additionalBranches]));
       
-      if(!actuallyDelete){
+      if (!actuallyDelete) {
         
-        if(finalList.length > 0){
+        if (finalList.length > 0) {
           log.info('The following branches would be deleted if you use the -d flag:');
           finalList.forEach(v => log.info(v));
         }
-        else{
+        else {
           log.warning('No branches would be deleted.');
         }
-  
+        
         return process.nextTick(cb);
       }
       
