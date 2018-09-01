@@ -15,5 +15,4 @@ commands="$project_root/dist/commands"
 export current_branch="$(git rev-parse --abbrev-ref HEAD)"
 
 
-
 node "$commands/delete-old-branches" "$@"

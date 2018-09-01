@@ -8,4 +8,6 @@ const assert  = require('assert');
 const EE  = require('events');
 const strm = require('stream');
 
-console.log('your simple node.js test goes here.');
+
+
+console.log([1,2,3,4].slice(0,-2));

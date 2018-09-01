@@ -17,6 +17,8 @@ if (!projectRoot) {
   throw new Error('Could not find project root given current working directory: ' + cwd);
 }
 
+const actuallyDelete = process.argv.indexOf('-d') > 1;
+
 const dest = path.resolve(projectRoot + '/scripts/git');
 const cloneableRepo = 'git@github.com:ORESoftware/gitflow.tools.git';
 
@@ -37,8 +39,8 @@ interface MergedBranchesResult {
 }
 
 interface CommitHashResult {
-  value: Map<string, string>,
-  hashes: Set<string>
+  map: Map<string, string>,
+  set: Set<string>
   stdout: string
 }
 
@@ -48,7 +50,43 @@ interface DeleteResult {
 
 async.autoInject({
   
-  findMergedBranches(cb: EVCb<MergedBranchesResult>) {
+  fetchOrigin(cb: EVCb<any>){
+    
+    q.push(cb => {
+  
+      const k = cp.spawn('bash');
+  
+      const result = <any>{
+        value: [],
+        stdout: ''
+      };
+  
+      const cmd = `git fetch origin`;
+      k.stdin.end(cmd);
+  
+      k.stdout.on('data', d => {
+        result.stdout += String(d);
+      });
+  
+      k.stderr.pipe(process.stderr);
+  
+      k.once('exit', code => {
+    
+        if (code > 0) {
+          log.error('Could not run command:', chalk.magenta(cmd));
+          return cb(code);
+        }
+    
+        result.value = String(result.stdout).trim();
+        cb(code, result);
+    
+      });
+    
+    }, cb);
+    
+  },
+  
+  findMergedBranches(fetchOrigin: any, cb: EVCb<MergedBranchesResult>) {
     
     q.push(cb => {
       
@@ -59,9 +97,8 @@ async.autoInject({
         stdout: ''
       };
       
-      const cmd = `git branch --merged "remotes/origin/dev"`;
-      
-      k.stdin.end();
+      const cmd = `git branch --merged "remotes/origin/dev" | tr -d ' *' `;
+      k.stdin.end(cmd);
       
       k.stdout.on('data', d => {
         result.stdout += String(d);
@@ -100,8 +137,8 @@ async.autoInject({
       const specialBranches = branches.filter(v => v.endsWith(marker));
       
       const result = <CommitHashResult>{
-        value: new Map(),  // map <branch,current hash>
-        hashes: new Set(),  // set < squashed branch hash >
+        map: new Map(),  // map <branch,current hash>
+        set: new Set(),  // set < squashed branch hash >
         stdout: ''
       };
       
@@ -110,18 +147,18 @@ async.autoInject({
         const k = cp.spawn('bash');
         
         // add second to last element to the Set
-        result.hashes.add(String(v).split('@').slice(-1).reverse()[0]);
+        result.set.add(String(v).split('@').slice(0,-1).reverse()[0]);
         
         // remove the last two elements, @<hash>@squashed
-        const b = String(v).split('@').slice(-2).join('');
-        const cmd = `git rev-parse "${b}"`;
+        const b = String(v).split('@').slice(0,-2).join('');
         
+        const cmd = `git rev-parse "${b}"`;
+        k.stdin.end(cmd);
+  
         let stdout = '';
         
-        k.stdin.end();
-        
         k.stdout.on('data', d => {
-          stdout += String(d);
+          stdout += String(d || '').trim();
         });
         
         k.stderr.pipe(process.stderr);
@@ -133,7 +170,7 @@ async.autoInject({
             return cb(null);
           }
           
-          result.value.set(b, String(stdout).trim());
+          result.map.set(b, String(stdout).trim());
           cb(code);
           
         });
@@ -148,38 +185,58 @@ async.autoInject({
   
   runDelete(findMergedBranches: MergedBranchesResult, getCommitsByBranch: CommitHashResult, cb: EVCb<DeleteResult>) {
     
-    const branches = findMergedBranches.value;
-    const marker = '@squashed';
-    
-    // we remove brances xxx, where xxx@squashed exists
-    const additionalBranches = Array.from(getCommitsByBranch.value.keys()).filter(v => {
-      // we return true if the tip of a the feature branch is in the name of a squashed branch
-      const currentCommitHash = getCommitsByBranch.value.get(v);
-      return getCommitsByBranch.hashes.has(currentCommitHash);
-    });
-    
-    const finalList = getUniqueList(flattenDeep([branches, additionalBranches]));
-    
-    const k = cp.spawn('bash');
-    const cmd = `git branch -D ${finalList.join(' ')}`;
-    k.stdin.end(cmd);
-    
-    let result = <DeleteResult>{
-      value: ''
-    };
-    
-    k.stdout.once('data', (d: any) => {
-      result.value += String(d.value);
-    });
-    
-    k.once('exit', code => {
+    q.push(v => {
       
-      if (code > 0) {
-        log.warning('The following commmand exited with code greater than zero:', chalk.magenta(cmd));
+      const branches = findMergedBranches.value;
+      
+      log.info('map:', getCommitsByBranch.map);
+      log.info('set:', getCommitsByBranch.set);
+      
+      // we remove brances xxx, where xxx@squashed exists
+      const additionalBranches = Array.from(getCommitsByBranch.map.keys()).filter(v => {
+        // we return true if the tip of a the feature branch is in the name of a squashed branch
+        log.info('checking this branch:', v);
+        const currentCommitHash = getCommitsByBranch.map.get(v);
+        return getCommitsByBranch.set.has(currentCommitHash);
+      });
+      
+      const finalList = getUniqueList(flattenDeep([branches, additionalBranches]));
+      
+      if(!actuallyDelete){
+        
+        if(finalList.length > 0){
+          log.info('The following branches would be deleted if you use the -d flag:');
+          finalList.forEach(v => log.info(v));
+        }
+        else{
+          log.warning('No branches would be deleted.');
+        }
+  
+        return process.nextTick(cb);
       }
       
-      cb(null, result);
-    });
+      const k = cp.spawn('bash');
+      const cmd = `git branch -D ${finalList.join(' ')}`;
+      k.stdin.end(cmd);
+      
+      let result = <DeleteResult> {
+        value: ''
+      };
+      
+      k.stdout.once('data', (d: any) => {
+        result.value += String(d.value);
+      });
+      
+      k.once('exit', code => {
+        
+        if (code > 0) {
+          log.warning('The following commmand exited with code greater than zero:', chalk.magenta(cmd));
+        }
+        
+        cb(null, result);
+      });
+      
+    }, cb);
     
   },
   

@@ -28,6 +28,6 @@ git reset --soft "remotes/origin/dev";
 
 git add .
 git add -A
-git commit -am "ores/gitflow auto-commit (squashed)"
+git commit --allow-empty -am "ores/gitflow auto-commit (squashed)"
 git push -u origin "$new_branch"
 
