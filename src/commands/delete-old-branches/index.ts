@@ -140,7 +140,7 @@ async.autoInject({
       const result = <CommitHashResult>{
         // map: new Map(),  // map <branch,current hash>
         // set: new Set(),  // set < squashed branch hash >,
-        branches : [],
+        branches: [],
         stdout: ''
       };
       
@@ -153,7 +153,7 @@ async.autoInject({
         
         // remove the last element, @squashed
         const b = String(v).split('@').slice(0, -1).join('');
-        const cleanBranch = b.replace(/[^a-zA-Z0-9]/g,'');
+        const cleanBranch = b.replace(/[^a-zA-Z0-9]/g, '');
         const divider = '***divider***';
         
         const cmd = [
@@ -181,15 +181,16 @@ async.autoInject({
             return cb(null);
           }
           
-          const storedCommit = String(stdout).trim().split(divider).shift().replace('__ensured','').trim();
-          const currentCommit = String(stdout).trim().split(divider).pop();
+          const getSplitDivider = () => {
+            return String(stdout).trim().split(divider).map(v => String(v || '').trim()).filter(Boolean);
+          };
           
-          log.info({storedCommit,currentCommit});
+          const storedCommit = getSplitDivider().shift().replace('__ensured', '');
+          const currentCommit = getSplitDivider().pop();
           
-          if(currentCommit === storedCommit){
+          if (currentCommit === storedCommit) {
             result.branches.push(b);
           }
-         
           
           cb(code);
           
@@ -209,17 +210,6 @@ async.autoInject({
       
       const branches = findMergedBranches.value;
       
-      // log.info('map:', getCommitsByBranch.map);
-      // log.info('set:', getCommitsByBranch.set);
-      
-      // we remove brances xxx, where xxx@squashed exists
-      // const additionalBranches = Array.from(getCommitsByBranch.map.keys()).filter(v => {
-      //   // we return true if the tip of a the feature branch is in the name of a squashed branch
-      //   log.info('checking this branch:', v);
-      //   const currentCommitHash = getCommitsByBranch.map.get(v);
-      //   return getCommitsByBranch.set.has(currentCommitHash);
-      // });
-  
       const additionalBranches = getCommitsByBranch.branches;
       const finalList = getUniqueList(flattenDeep([branches, additionalBranches]));
       
