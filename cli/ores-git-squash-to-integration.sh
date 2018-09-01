@@ -18,7 +18,10 @@ git commit --allow-empty -am "ores/gitflow auto-commit (PRE-squashed)"
 git fetch origin;
 # GIT_MERGE_AUTOEDIT=no git merge origin;
 # git merge --no-commit --no-edit origin;
-git merge --no-edit origin;
+
+#git merge --no-edit origin;
+git merge --no-edit 'HEAD@{upstream}';
+
 
 current_commit="$(git rev-parse HEAD)"
 new_branch="$current_branch@squashed";

@@ -8,7 +8,7 @@ import * as cp from 'child_process';
 import residence = require('residence');
 import chalk from 'chalk';
 import log from '../../logger';
-import {flattenDeep, getUniqueList} from '../../utils';
+import {EVCb, flattenDeep, getUniqueList} from '../../utils';
 
 const cwd = process.cwd();
 const projectRoot = residence.findProjectRoot(cwd);
@@ -18,12 +18,6 @@ if (!projectRoot) {
 }
 
 const actuallyDelete = process.argv.indexOf('-d') > 1;
-
-const dest = path.resolve(projectRoot + '/scripts/git');
-const cloneableRepo = 'git@github.com:ORESoftware/gitflow.tools.git';
-
-export type EVCb<T> = (err: any, val?: T) => void;
-
 export type Task = (cb: EVCb<any>) => void;
 const q = async.queue<Task, any>((task, cb) => task(cb), 1);
 

@@ -1,4 +1,5 @@
 
+export type EVCb<T> = (err: any, val?: T) => void;
 
 export const getUniqueList =  (a: Array<any>) : Array<any> => {
   

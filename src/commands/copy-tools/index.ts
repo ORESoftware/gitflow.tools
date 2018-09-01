@@ -7,6 +7,7 @@ import * as path from "path";
 import * as cp from 'child_process';
 import residence = require('residence');
 import log from '../../logger';
+import {EVCb} from '../../utils';
 const cwd = process.cwd();
 const projectRoot = residence.findProjectRoot(cwd);
 
@@ -17,7 +18,6 @@ if (!projectRoot) {
 const dest = path.resolve(projectRoot + '/scripts/git');
 const cloneableRepo = 'git@github.com:ORESoftware/gitflow.tools.git';
 
-export type EVCb<T> = (err: any, val?: T) => void;
 
 async.autoInject({
 
