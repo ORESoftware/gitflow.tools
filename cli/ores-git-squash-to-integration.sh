@@ -52,7 +52,8 @@ fi
 
 echo "Successfully pushed, now checking out new feature branch.";
 
-ores_checkout
+# checkout new feature branch
+ores_checkout_new_git_branch_from_integration
 
 # now we want to make all the files non-writable
 #waldo -n node_modules -n '\.git' -n .idea | xargs chmod -w
