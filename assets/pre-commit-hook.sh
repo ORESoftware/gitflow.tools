@@ -13,8 +13,8 @@ master="master";
 integration="integration";
 
 if [ -f '.vcs.json' ]; then
-    master=`read_json -f .vcs.json -k 'git.master'`
-    integration=`read_json -f .vcs.json -k 'git.integration'`
+    master="${`read_json -f .vcs.json -k git.master`:-master}"
+    integration="${`read_json -f .vcs.json -k git.integration`:-integration}"
 fi
 
 current_branch=`git rev-parse --abbrev-ref HEAD`
