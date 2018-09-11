@@ -9,13 +9,16 @@ if ! type -f read_json > /dev/null; then
   }
 fi
 
-master="master";
-integration="integration";
+
 
 if [ -f '.vcs.json' ]; then
-    master="${`read_json -f .vcs.json -k git.master`:-master}"
-    integration="${`read_json -f .vcs.json -k git.integration`:-integration}"
+    master=`read_json -f .vcs.json -k git.master`
+    integration=`read_json -f .vcs.json -k git.integration`
 fi
+
+master="${master-master}";
+integration="${integration-integration}";
+
 
 current_branch=`git rev-parse --abbrev-ref HEAD`
 echo "Current branch: '$current_branch'";
