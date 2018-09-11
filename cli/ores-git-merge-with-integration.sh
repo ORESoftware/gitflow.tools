@@ -9,6 +9,25 @@ if [ "$current_branch" == "master" ] || [ "$current_branch" == "dev" ]; then
     exit 1;
 fi
 
+contains() {
+
+    local seeking="$1"; shift 1;
+    local arr=( "$@" )
+
+    for v in "${arr[@]}"; do
+        if [ "$v" == "$seeking" ]; then
+            return 0;
+        fi
+    done
+   return 1;
+}
+
+rebase="yep";
+if contains "--no-rebase" "$@"; then
+  rebase="nope";
+fi
+
+
 time_seconds=`node -e 'console.log(String(Date.now()).slice(0,-3))'`;
 git fetch origin dev;
 
@@ -16,6 +35,11 @@ git add .
 git add -A
 git commit --allow-empty -am "merge_at_${time_seconds}"
 
-git merge -Xignore-space-change "remotes/origin/dev" # use --no-ff to force a new commit
+if [ "$rebase" == "yep" ]; then
+    git rebase -Xignore-all-space "remotes/origin/dev"
+else
+    git merge -Xignore-space-change "remotes/origin/dev" # use --no-ff to force a new commit
+fi
+
 git push origin HEAD
 

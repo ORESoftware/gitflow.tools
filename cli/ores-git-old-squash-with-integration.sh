@@ -15,16 +15,19 @@ git add .
 git add -A
 git commit --allow-empty -am "ores/gitflow auto-commit (PRE-squashed)"
 
-git fetch origin;
-git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
+base=`git merge-base --fork-point HEAD "remotes/origin/dev"`
 
-base="remotes/origin/dev";
+git fetch origin;
+# GIT_MERGE_AUTOEDIT=no git merge origin;
+# git merge --no-commit --no-edit origin;
+
+#git merge --no-edit origin;
+git merge --no-edit 'HEAD@{upstream}';
 
 current_commit="$(git rev-parse HEAD)"
 new_branch="$current_branch@squashed";
 
 git checkout --no-track -b "$new_branch";
-git rebase -Xignore-all-space "$base";
 git reset --soft "$base";
 
 git add .
@@ -39,12 +42,21 @@ git push -u origin "$new_branch" || {
   exit 1;
 }
 
+if ! type -f waldo &> /dev/null; then
+ npm i -s -g waldo || {
+   echo "Could not install waldo/find command line utility.";
+   exit 1;
+ }
+fi
+
 
 echo "Successfully pushed, now checking out new feature branch.";
 
 # checkout new feature branch
 ores_checkout_new_git_branch_from_integration
 
+# now we want to make all the files non-writable
+#waldo -n node_modules -n '\.git' -n .idea | xargs chmod -w
 
 
 
