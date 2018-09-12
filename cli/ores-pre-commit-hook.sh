@@ -24,9 +24,12 @@ if ! type -f nreplc > /dev/null; then
   }
 fi
 
-current_branch="$(git rev-parse --abbrev-ref HEAD)"
+current_branch=`git rev-parse --abbrev-ref HEAD`;
+echo "Current branch: '$current_branch'";
 
-if ! git diff --exit-code HEAD "remotes/origin/$current_branch"; then
+remote_tracking_branch="$current_branch@{upstream}"
+
+if ! git diff --exit-code HEAD "$remote_tracking_branch"; then
    echo "There is a diff between HEAD and the remote tracking branch.";
    exit 1;
 fi
@@ -44,21 +47,22 @@ master="${master-master}";
 integration="${integration-dev}";
 
 
-current_branch=`git rev-parse --abbrev-ref HEAD`
-echo "Current branch: '$current_branch'";
-
-if [ "$current_branch" == "$master" ]; then
-   echo "Cannot commit to master without --force."
-   exit 1;
+if [ "$allow_commit_to_master" != "yes" ]; then
+    if [ "$current_branch" == "$master" ]; then
+       echo "Cannot commit to master without using an env variable: allow_commit_to_master=yes."
+       exit 1;
+    fi
 fi
 
-if [ "$current_branch" == "$integration" ]; then
-   echo "Cannot commit to integration branch without --force."
-   exit 1;
+if [ "$allow_commit_to_integration" != "yes" ]; then
+    if [ "$current_branch" == "$integration" ]; then
+       echo "Cannot commit to integration branch without using an env variable: allow_commit_to_integration=yes."
+       exit 1;
+    fi
 fi
+
 
 branches="$(git branch --merged remotes/origin/dev | tr -d " *" |  nreplc '@squashed$' '')"
-
 
 for b in "$branches"; do
    if [[ "$current_branch" == *b ]]; then
