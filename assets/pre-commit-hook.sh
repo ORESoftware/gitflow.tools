@@ -9,8 +9,6 @@ if ! type -f read_json > /dev/null; then
   }
 fi
 
-
-
 if [ -f '.vcs.json' ]; then
     master=`read_json -f .vcs.json -k git.master`
     integration=`read_json -f .vcs.json -k git.integration`
