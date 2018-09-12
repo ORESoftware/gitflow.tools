@@ -25,7 +25,7 @@ git fetch origin;
 git merge --no-edit 'HEAD@{upstream}';
 
 current_commit="$(git rev-parse HEAD)"
-new_branch="$current_branch@squashed";
+new_branch="$current_branch@squashed";  # git read-tree --prefix=spoon-knife/ -u spoon-knife/master
 
 git checkout --no-track -b "$new_branch";
 git reset --soft "$base";

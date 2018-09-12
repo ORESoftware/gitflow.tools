@@ -35,6 +35,10 @@ git add .
 git add -A
 git commit --allow-empty -am "merge_at_${time_seconds}"
 
+### merge with upstream
+git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
+
+
 if [ "$rebase" == "yep" ]; then
     git rebase -Xignore-all-space "remotes/origin/dev"
 else
