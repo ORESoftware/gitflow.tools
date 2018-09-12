@@ -40,10 +40,10 @@ git push -u origin "$new_branch" || {
 }
 
 
-echo "Successfully pushed, now checking out new feature branch.";
+echo "Successfully pushed.";
 
 # checkout new feature branch
-ores_checkout_new_git_branch_from_integration
+#ores_checkout_new_git_branch_from_integration
 
 
 
