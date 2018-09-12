@@ -3,6 +3,10 @@
 
 set -e;
 
+if [ "ores_gitflow_pre_commit" == "force" ]; then
+    exit 0;
+fi
+
 git fetch origin;
 
 if ! type -f read_json > /dev/null; then
@@ -18,6 +22,13 @@ if ! type -f nreplc > /dev/null; then
     echo 'Could not install @oresoftware/git.tools, fatal.';
     exit 1;
   }
+fi
+
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+
+if ! git diff --exit-code HEAD "remotes/origin/$current_branch"; then
+   echo "There is a diff between HEAD and the remote tracking branch.";
+   exit 1;
 fi
 
 
