@@ -3,6 +3,13 @@
 
 set -e; # exit immediately if any command fails
 
+commit_message="$1";
+
+if [ -z "$commit_message" ]; then
+  echo "Your commit message is empty, please pass a commit message as the first argument.";
+  exit 1;
+fi
+
 export current_branch="$(git rev-parse --abbrev-ref HEAD)"
 
 if [[ "$current_branch" != */feature/* ]] ; then
@@ -29,7 +36,7 @@ git reset --soft "$base";
 
 git add .
 git add -A
-git commit --allow-empty -am "ores/gitflow auto-commit (squashed)"
+git commit --allow-empty -am "ores gitflow auto-commit (squashed): $commit_message"
 
 clean_branch=`echo "$current_branch" | tr -dc '[:alnum:]'`  # replace non-alpha-numerics with nothing
 git config --local "branch.$clean_branch.orescommit" "$current_commit"
