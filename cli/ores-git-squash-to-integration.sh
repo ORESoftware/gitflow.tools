@@ -30,6 +30,10 @@ base="remotes/origin/dev";
 current_commit="$(git rev-parse HEAD)"
 new_branch="$current_branch@squashed";
 
+git branch -D "$new_branch" 2> /dev/null || {
+  echo "(no branch named '$new_branch' to delete)";
+}
+
 git checkout --no-track -b "$new_branch";
 git rebase -Xignore-all-space "$base";
 git reset --soft "$base";
@@ -41,7 +45,7 @@ git commit --allow-empty -am "ores gitflow auto-commit (squashed): $commit_messa
 clean_branch=`echo "$current_branch" | tr -dc '[:alnum:]'`  # replace non-alpha-numerics with nothing
 git config --local "branch.$clean_branch.orescommit" "$current_commit"
 
-git push -u origin "$new_branch" || {
+git push -f -u origin "$new_branch" || {
   echo "Could not push to remote.";
   exit 1;
 }
