@@ -7,7 +7,7 @@ ssh -T git@github.com || {
 #  exit 1;
 }
 
-branch=`git rev-parse --abbrev-ref HEAD`
+#branch=`git rev-parse --abbrev-ref HEAD`
 commit_message="${1:-set}" # default commit message is 'set'
 
 git add .

@@ -11,7 +11,8 @@ fi
 
 contains() {
 
-    local seeking="$1"; shift 1;
+    local seeking="$1";
+    shift 1;
     local arr=( "$@" )
 
     for v in "${arr[@]}"; do
@@ -39,11 +40,14 @@ git commit --allow-empty -am "merge_at_${time_seconds}"
 git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
 
 
-if [ "$rebase" == "yep" ]; then
-    git rebase -Xignore-all-space "remotes/origin/dev"
-else
-    git merge -Xignore-space-change "remotes/origin/dev" # use --no-ff to force a new commit
-fi
+#if [ "$rebase" == "yep" ]; then
+#    git rebase -Xignore-all-space "remotes/origin/dev"
+#else
+#    git merge -Xignore-space-change "remotes/origin/dev" # use --no-ff to force a new commit
+#fi
+
+
+git merge -Xignore-space-change "remotes/origin/dev" # use --no-ff to force a new commit
 
 git push origin HEAD
 
