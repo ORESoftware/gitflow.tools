@@ -25,7 +25,7 @@ git commit --allow-empty -am "ores/gitflow auto-commit (PRE-squashed)"
 git fetch origin;
 git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
 
-base="remotes/origin/dev";
+
 
 current_commit=`git rev-parse HEAD`
 new_branch="$current_branch@squashed";
@@ -34,6 +34,7 @@ git branch -D "$new_branch" 2> /dev/null || {
   echo "(no branch named '$new_branch' to delete)";
 }
 
+base="remotes/origin/dev";
 git checkout --no-track -b "$new_branch";
 git rebase -Xignore-all-space "$base";
 

@@ -20,26 +20,34 @@ fi
 
 git add .
 git add -A
-git commit --allow-empty -am "ores/gitflow auto-commit (PRE-squashed)"
+git commit --allow-empty -am 'ores/gitflow auto-commit (PRE-squashed)'
 
 git fetch origin;
-git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
+git merge -Xignore-all-space --no-edit 'HEAD@{upstream}'
 
-base="remotes/origin/dev";
 
-current_commit="$(git rev-parse HEAD)"
+base='remotes/origin/dev';
+
+echo "base: $base";
+
+fork_point="$(git merge-base --fork-point "$base")";
+
+echo "fork point 1: $fork_point";
+
+if [ -z "$fork_point" ]; then
+   echo "Could not find fork-point with '$base'";
+   exit 1;
+fi
+
+echo "fork point 2: $fork_point";
+
+current_commit=`git rev-parse HEAD`
 new_branch="$current_branch@squashed";
 
 git branch -D "$new_branch" 2> /dev/null || {
   echo "(no branch named '$new_branch' to delete)";
 }
 
-fork_point=`git merge-base --fork-point origin/dev`;
-
-if [ -z "$fork_point" ]; then
-   echo 'Could not find fork-point with origin/dev';
-   exit 1;
-fi
 
 git checkout --no-track -b "$new_branch";
 git reset --soft "$fork_point";

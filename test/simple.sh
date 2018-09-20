@@ -1,27 +1,18 @@
 #!/usr/bin/env bash
 
-echo "your simple bash test goes here"
+#echo `cat <<EOF
+#
+#bar
+#
+#star
+#
+#EOF`
 
-simple_return_zero(){
-  return 0;
-}
 
-simple_return_one(){
-  return 1;
-}
+cat <<EOF
 
-if simple_return_zero; then
-   echo "we have 0000";
-fi
+bar
 
-if ! simple_return_zero; then
-   echo "we have not 00000";
-fi
+     star
 
-if simple_return_one; then
-   echo "we have 11111";
-fi
-
-if ! simple_return_one; then
-   echo "we have not 11111";
-fi
+EOF
