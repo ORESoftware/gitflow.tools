@@ -18,13 +18,15 @@ if [[ "$current_branch" != */feature/* ]] ; then
   exit 1;
 fi
 
-git add .
-git add -A
-git commit --allow-empty -am "ores/gitflow auto-commit (PRE-squashed)"
 
 git fetch origin;
-git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
 
+git add .
+git add -A
+git reset origin/dev -- config
+git commit --allow-empty -m "ores/gitflow auto-commit (PRE-squashed)"
+
+git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
 
 
 current_commit=`git rev-parse HEAD`
@@ -42,7 +44,8 @@ git reset --soft "$base";
 
 git add .
 git add -A
-git commit --allow-empty -am "ores gitflow auto-commit (squashed): $commit_message"
+git reset origin/dev -- config
+git commit --allow-empty -m "$commit_message"
 
 
 clean_branch=`echo "$current_branch" | tr -dc '[:alnum:]'`  # replace non-alpha-numerics with nothing

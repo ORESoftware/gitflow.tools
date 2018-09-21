@@ -5,6 +5,15 @@ set -e;
 branch_type="${1:-feature}";
 arr=( 'feature' 'bugfix' 'release' );
 
+
+branch_name="$2";
+
+if [ -z "$branch_name" ]; then
+  echo "Your branch name is empty, please pass a name for the branch as the second argument. The first arg is branch type: ($arr[@]).";
+  exit 1;
+fi
+
+
 contains() {
 
     local seeking="$1"
@@ -31,7 +40,7 @@ git fetch origin;
 time_seconds=`node -e 'console.log(String(Date.now()).slice(0,-3))'`;
 
 echo "You are checking out a new $branch_type branch from the dev branch"
-new_branch="${USER}/${branch_type}/${time_seconds}"
+new_branch="${USER}/${branch_type}/${branch_name}"
 
 echo "New branch name: $new_branch";
 
