@@ -2,7 +2,7 @@
 
 set -e; # exit immediately if any command fails
 
-current_branch="$(git rev-parse --abbrev-ref HEAD)"
+current_branch=`git rev-parse --abbrev-ref HEAD`;
 
 if [ "$current_branch" == "master" ] || [ "$current_branch" == "dev" ]; then
     echo 'Aborting script because you are on master or dev branch; you need to be on a feature branch.';
@@ -10,15 +10,25 @@ if [ "$current_branch" == "master" ] || [ "$current_branch" == "dev" ]; then
     exit $?;
 fi
 
-time_seconds=`node -e 'console.log(String(Date.now()).slice(0,-3))'`;
-git fetch origin;
+if [[ "$current_branch" == *"@squashed" ]]; then
+    echo "Your current branch is already squashed.";
+    exit 1;
+fi
 
-git add .
-git add -A
-git commit --allow-empty -am "merge_at_${time_seconds}"
+
+git fetch origin;
+time_seconds=`node -e 'console.log(String(Date.now()).slice(0,-3))'`;
+
+if ! git diff --quiet  --exit-code > /dev/null || ! git diff --quiet --cached --exit-code > /dev/null; then
+
+    git add .
+    git add -A
+    git commit -am "merging with remotes/origin/dev at ${time_seconds}"
+
+fi
 
 git merge -Xignore-all-space "remotes/origin/dev" # use --no-ff to force a new commit
-git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
+#git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
 
 git push origin HEAD
 

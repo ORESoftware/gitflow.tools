@@ -18,8 +18,14 @@ if [[ "$current_branch" != */feature/* ]] ; then
   exit 1;
 fi
 
+if [[ "$current_branch" == *"@squashed" ]]; then
+    echo "Your current branch is already squashed.";
+    exit 1;
+fi
+
 git add .
 git add -A
+git reset origin/dev -- config || echo "Could not checkout changes to config"
 git commit --allow-empty -am 'ores/gitflow auto-commit (PRE-squashed)'
 
 git fetch origin;
@@ -27,19 +33,13 @@ git merge -Xignore-all-space --no-edit 'HEAD@{upstream}'
 
 
 base='remotes/origin/dev';
-
-echo "base: $base";
-
-fork_point="$(git merge-base --fork-point "$base")";
-
-echo "fork point 1: $fork_point";
+fork_point=`git merge-base --fork-point "$base"`;
 
 if [ -z "$fork_point" ]; then
    echo "Could not find fork-point with '$base'";
    exit 1;
 fi
 
-echo "fork point 2: $fork_point";
 
 current_commit=`git rev-parse HEAD`
 new_branch="$current_branch@squashed";
@@ -48,15 +48,14 @@ git branch -D "$new_branch" 2> /dev/null || {
   echo "(no branch named '$new_branch' to delete)";
 }
 
-
 git checkout --no-track -b "$new_branch";
 git reset --soft "$fork_point";
 
 git add .
 git add -A
-git commit --allow-empty -am "ores gitflow auto-commit (squashed): $commit_message"
+git reset origin/dev -- config
+git commit --allow-empty -am "$commit_message"
 
-git rebase -Xignore-all-space "$base";
 
 clean_branch=`echo "$current_branch" | tr -dc '[:alnum:]'`  # replace non-alpha-numerics with nothing
 git config --local "branch.$clean_branch.orescommit" "$current_commit"
@@ -68,9 +67,8 @@ git push -f -u origin "$new_branch" || {
 
 
 echo "Successfully pushed.";
-
 # checkout new feature branch
-#ores_checkout_new_git_branch_from_integration
+ores_checkout_new_git_branch_from_integration feature next
 
 
 

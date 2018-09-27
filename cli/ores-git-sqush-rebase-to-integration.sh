@@ -10,7 +10,7 @@ if [ -z "$commit_message" ]; then
   exit 1;
 fi
 
-export current_branch="$(git rev-parse --abbrev-ref HEAD)"
+export current_branch=`git rev-parse --abbrev-ref HEAD`;
 
 if [[ "$current_branch" != */feature/* ]] ; then
   echo "Current branch does not seem to be a feature branch by name, please check, and use --force to override.";
@@ -18,6 +18,10 @@ if [[ "$current_branch" != */feature/* ]] ; then
   exit 1;
 fi
 
+if [[ "$current_branch" == *"@squashed" ]]; then
+    echo "Your current branch is already squashed.";
+    exit 1;
+fi
 
 git fetch origin;
 
@@ -26,7 +30,7 @@ git add -A
 git reset origin/dev -- config
 git commit --allow-empty -m "ores/gitflow auto-commit (PRE-squashed)"
 
-git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
+#git merge -Xignore-space-change -Xignore-all-space --no-edit 'HEAD@{upstream}';
 
 
 current_commit=`git rev-parse HEAD`
@@ -38,7 +42,10 @@ git branch -D "$new_branch" 2> /dev/null || {
 
 base="remotes/origin/dev";
 git checkout --no-track -b "$new_branch";
-git rebase -Xignore-all-space "$base";
+
+if ! git rebase -Xignore-space-change -Xignore-all-space "$base"; then
+  read -p "Git rebase failed. Press ENTER when you think you've fixed it"
+fi
 
 git reset --soft "$base";
 
@@ -58,9 +65,8 @@ git push -f -u origin "$new_branch" || {
 
 
 echo "Successfully pushed.";
-
 # checkout new feature branch
-#ores_checkout_new_git_branch_from_integration
+ores_checkout_new_git_branch_from_integration feature next
 
 
 
