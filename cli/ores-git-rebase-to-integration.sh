@@ -10,7 +10,6 @@ if [ "$current_branch" == "master" ] || [ "$current_branch" == "dev" ]; then
     exit $?;  # use 0 not 1
 fi
 
-
 if [[ "$current_branch" == *"@squashed" ]]; then
     echo "Your current branch is already squashed.";
     exit 1;
@@ -20,14 +19,13 @@ time_seconds=`node -e 'console.log(String(Date.now()).slice(0,-3))'`;
 git fetch origin;
 
 
-if ! git diff --quiet  --exit-code > /dev/null || ! git diff --quiet --cached --exit-code > /dev/null; then
+if ! git diff --quiet --exit-code > /dev/null || ! git diff --quiet --cached --exit-code > /dev/null; then
 
     git add .
     git add -A
     git commit -am "rebasing with remotes/origin/dev at ${time_seconds}"
 
 fi
-
 
 git rebase -Xignore-all-space -Xignore-space-change "remotes/origin/dev"
 #git rebase -Xignore-all-space --no-edit 'HEAD@{upstream}';

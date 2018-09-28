@@ -9,5 +9,4 @@ if ! type -f ores_pre_commit_hook > /dev/null; then
 fi
 
 
-
 ores_pre_commit_hook "$@"

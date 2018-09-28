@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e;
 
 if ! type -f ores_get_project_root &> /dev/null; then
    npm i -s -g '@oresoftware/ores' || {
@@ -12,7 +13,6 @@ project_root="$(ores_get_project_root "$0")";
 commands="$project_root/dist/commands"
 
 
-export current_branch="$(git rev-parse --abbrev-ref HEAD)"
-
+export current_branch=`git rev-parse --abbrev-ref HEAD`
 
 node "$commands/delete-old-branches" "$@"

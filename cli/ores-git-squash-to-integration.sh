@@ -10,7 +10,7 @@ if [ -z "$commit_message" ]; then
   exit 1;
 fi
 
-export current_branch=`git rev-parse --abbrev-ref HEAD`
+current_branch=`git rev-parse --abbrev-ref HEAD`
 
 if [[ "$current_branch" != */feature/* ]] ; then
   echo "Current branch does not seem to be a feature branch by name, please check, and use --force to override.";
@@ -29,8 +29,7 @@ git reset origin/dev -- config || echo "Could not checkout changes to config"
 git commit --allow-empty -am 'ores/gitflow auto-commit (PRE-squashed)'
 
 git fetch origin;
-git merge -Xignore-all-space --no-edit 'HEAD@{upstream}'
-
+#git merge -Xignore-all-space --no-edit 'HEAD@{upstream}'
 
 base='remotes/origin/dev';
 fork_point=`git merge-base --fork-point "$base"`;
@@ -64,7 +63,6 @@ git push -f -u origin "$new_branch" || {
   echo "Could not push to remote.";
   exit 1;
 }
-
 
 echo "Successfully pushed.";
 # checkout new feature branch
