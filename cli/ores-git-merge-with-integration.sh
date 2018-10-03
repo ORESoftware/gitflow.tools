@@ -23,12 +23,14 @@ if ! git diff --quiet  --exit-code > /dev/null || ! git diff --quiet --cached --
 
     git add .
     git add -A
-    git commit -am "merging with remotes/origin/dev at ${time_seconds}"
+    git reset origin/dev -- config
+    git commit -m "merging with remotes/origin/dev at ${time_seconds}" || echo 'Could not create new commit.';
 
 fi
 
 git merge -Xignore-all-space "remotes/origin/dev" # use --no-ff to force a new commit
-#git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
+
+# git merge -Xignore-all-space --no-edit 'HEAD@{upstream}';
 
 git push origin HEAD
 

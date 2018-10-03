@@ -23,7 +23,8 @@ if ! git diff --quiet --exit-code > /dev/null || ! git diff --quiet --cached --e
 
     git add .
     git add -A
-    git commit -am "rebasing with remotes/origin/dev at ${time_seconds}"
+    git reset origin/dev -- config || echo 'Could not reset config dir.'
+    git commit -m "rebasing with remotes/origin/dev at ${time_seconds}" || echo 'Could not create new commit.'
 
 fi
 

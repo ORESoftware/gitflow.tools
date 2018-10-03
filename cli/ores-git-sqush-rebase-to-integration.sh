@@ -32,7 +32,6 @@ git commit --allow-empty -m "ores/gitflow auto-commit (PRE-squashed)"
 
 #git merge -Xignore-space-change -Xignore-all-space --no-edit 'HEAD@{upstream}';
 
-
 current_commit=`git rev-parse HEAD`
 new_branch="$current_branch@squashed";
 

@@ -53,8 +53,12 @@ git reset --soft "$fork_point";
 git add .
 git add -A
 git reset origin/dev -- config
-git commit --allow-empty -am "$commit_message"
+git commit -m "$commit_message";
 
+
+if ! git rebase -Xignore-space-change -Xignore-all-space "$base"; then
+  read -p "Git rebase failed. Press ENTER when you think you have fixed it."
+fi
 
 clean_branch=`echo "$current_branch" | tr -dc '[:alnum:]'`  # replace non-alpha-numerics with nothing
 git config --local "branch.$clean_branch.orescommit" "$current_commit"
