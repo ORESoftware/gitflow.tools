@@ -2,16 +2,17 @@
 
 set -e;
 
-branch_type="${1:-feature}";
-arr=( 'feature' 'bugfix' 'release' );
 
-
-branch_name="$2";
+branch_name="$1";
 
 if [ -z "$branch_name" ]; then
   echo "Your branch name is empty, please pass a name for the branch as the second argument. The first arg is branch type: ($arr[@]).";
   exit 1;
 fi
+
+branch_type="${2:-feature}";
+arr=( 'feature' 'bugfix' 'release' );
+
 
 
 contains() {

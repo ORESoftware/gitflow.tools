@@ -19,14 +19,12 @@ time_seconds=`node -e 'console.log(String(Date.now()).slice(0,-3))'`;
 git fetch origin;
 
 
-if ! git diff --quiet --exit-code > /dev/null || ! git diff --quiet --cached --exit-code > /dev/null; then
+git add .
+git add -A
+git reset -- config || echo 'Could not reset config dir.'
+git checkout -- config || echo 'Could not checkout config dir.'
+git commit -m "rebasing with remotes/origin/dev at ${time_seconds}" || echo 'Could not create new commit.'
 
-    git add .
-    git add -A
-    git reset origin/dev -- config || echo 'Could not reset config dir.'
-    git commit -m "rebasing with remotes/origin/dev at ${time_seconds}" || echo 'Could not create new commit.'
-
-fi
 
 git rebase -Xignore-all-space -Xignore-space-change "remotes/origin/dev"
 #git rebase -Xignore-all-space --no-edit 'HEAD@{upstream}';

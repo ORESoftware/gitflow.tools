@@ -25,21 +25,14 @@ fi
 
 git add .
 git add -A
-git reset origin/dev -- config || echo "Could not checkout changes to config"
-git commit --allow-empty -am 'ores/gitflow auto-commit (PRE-squashed)'
+git reset -- config || echo "Could not reset changes to config"
+git checkout -- config || echo "Could not checkout changes to config"
+git commit -m 'ores/gitflow auto-commit (PRE-squashed)' || echo 'Could not create new commit, nbd';
 
 git fetch origin;
 #git merge -Xignore-all-space --no-edit 'HEAD@{upstream}'
 
 base='remotes/origin/dev';
-fork_point=`git merge-base --fork-point "$base"`;
-
-if [ -z "$fork_point" ]; then
-   echo "Could not find fork-point with '$base'";
-   exit 1;
-fi
-
-
 current_commit=`git rev-parse HEAD`
 new_branch="$current_branch@squashed";
 
@@ -48,17 +41,18 @@ git branch -D "$new_branch" 2> /dev/null || {
 }
 
 git checkout --no-track -b "$new_branch";
-git reset --soft "$fork_point";
-
-git add .
-git add -A
-git reset origin/dev -- config
-git commit -m "$commit_message";
-
 
 if ! git rebase -Xignore-space-change -Xignore-all-space "$base"; then
   read -p "Git rebase failed. Press ENTER when you think you have fixed it."
 fi
+
+git reset --soft "$base";
+
+git add .
+git add -A
+git reset -- config || echo 'Could not reset config dir, nbd';
+git checkout -- config || echo 'Could not checkout config dir, nbd';
+git commit -m "$commit_message" || echo 'Could not create new commit, nbd';
 
 clean_branch=`echo "$current_branch" | tr -dc '[:alnum:]'`  # replace non-alpha-numerics with nothing
 git config --local "branch.$clean_branch.orescommit" "$current_commit"
